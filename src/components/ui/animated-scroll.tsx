@@ -297,6 +297,16 @@ export default function ScrollAdventure() {
     setCurrentPage((page) => Math.min(numOfPages, page + 1));
   };
 
+  const navigateToPage = (page: number) => {
+    if (scrolling.current || page === currentPageRef.current) return;
+
+    scrolling.current = true;
+    setCurrentPage(Math.min(numOfPages, Math.max(1, page)));
+    window.setTimeout(() => {
+      scrolling.current = false;
+    }, animTime);
+  };
+
   const beginNavigation = (direction: "up" | "down") => {
     if (scrolling.current) return;
     scrolling.current = true;
@@ -465,11 +475,26 @@ export default function ScrollAdventure() {
         );
       })}
 
-      <div className="pointer-events-none absolute bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[#d8b46a] backdrop-blur-md sm:hidden">
-        {pages[currentPage - 1]?.label}
-        <span className="text-white/40">
-          {currentPage}/{pages.length}
-        </span>
+      <div className="absolute bottom-5 left-1/2 z-40 flex w-[calc(100%-1.5rem)] -translate-x-1/2 gap-1 overflow-x-auto rounded-full border border-white/15 bg-black/25 p-1 text-[0.66rem] font-medium uppercase tracking-[0.12em] text-white/54 backdrop-blur-md sm:hidden">
+        {pages.map((page, index) => {
+          const pageNumber = index + 1;
+          const isCurrent = currentPage === pageNumber;
+
+          return (
+            <button
+              key={page.label}
+              type="button"
+              onClick={() => navigateToPage(pageNumber)}
+              className={`shrink-0 rounded-full px-3 py-2 transition-colors ${
+                isCurrent
+                  ? "bg-white/12 text-[#d8b46a]"
+                  : "text-white/54 active:bg-white/10"
+              }`}
+            >
+              {page.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="pointer-events-none absolute bottom-8 left-1/2 z-40 hidden max-w-[calc(100%-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-white/72 backdrop-blur-md sm:flex">
