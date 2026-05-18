@@ -281,6 +281,7 @@ export default function ScrollAdventure() {
   const scrolling = useRef(false);
   const currentPageRef = useRef(currentPage);
   const touchStartY = useRef<number | null>(null);
+  const touchHandled = useRef(false);
   const numOfPages = pages.length;
   const animTime = 1000;
 
@@ -345,18 +346,20 @@ export default function ScrollAdventure() {
 
   const handleTouchStart = (event: React.TouchEvent<HTMLElement>) => {
     touchStartY.current = event.touches[0]?.clientY ?? null;
+    touchHandled.current = false;
   };
 
-  const handleTouchEnd = (event: React.TouchEvent<HTMLElement>) => {
+  const handleTouchMove = (event: React.TouchEvent<HTMLElement>) => {
     if (touchStartY.current === null) return;
+    if (touchHandled.current || scrolling.current) return;
 
-    const endY = event.changedTouches[0]?.clientY;
-    if (endY === undefined) return;
+    const currentY = event.touches[0]?.clientY;
+    if (currentY === undefined) return;
 
-    const delta = touchStartY.current - endY;
-    touchStartY.current = null;
+    const delta = touchStartY.current - currentY;
+    if (Math.abs(delta) < 44) return;
 
-    if (Math.abs(delta) < 48) return;
+    const direction = delta > 0 ? "down" : "up";
 
     const target = event.target instanceof Element ? event.target : null;
     const scrollCard = target?.closest("[data-scroll-card]");
@@ -366,12 +369,19 @@ export default function ScrollAdventure() {
         scrollCard.scrollTop + scrollCard.clientHeight < scrollCard.scrollHeight - 2;
       const canScrollUp = scrollCard.scrollTop > 2;
 
-      if ((delta > 0 && canScrollDown) || (delta < 0 && canScrollUp)) {
+      if ((direction === "down" && canScrollDown) || (direction === "up" && canScrollUp)) {
         return;
       }
     }
 
-    beginNavigation(delta > 0 ? "down" : "up");
+    event.preventDefault();
+    touchHandled.current = true;
+    beginNavigation(direction);
+  };
+
+  const handleTouchEnd = () => {
+    touchStartY.current = null;
+    touchHandled.current = false;
   };
 
   return (
@@ -380,6 +390,7 @@ export default function ScrollAdventure() {
       ref={sectionRef}
       tabIndex={0}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       className="relative h-[100dvh] overflow-hidden bg-[#05080d] outline-none md:h-screen"
     >
