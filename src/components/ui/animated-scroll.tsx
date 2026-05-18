@@ -48,10 +48,10 @@ const pages: ScrollPage[] = [
         <div className="space-y-5">
           <div>
             <p className="font-medium text-white">
-              Engineer I-IV · Energie NB Power
+              Engineer I-IV | Energie NB Power
             </p>
             <p className="text-sm text-white/64">
-              Dec 2024 - Present · New Brunswick, Canada · On-site
+              Dec 2024 - Present | New Brunswick, Canada | On-site
             </p>
             <p className="mt-2">
               Manages engineering projects with cross-functional teams,
@@ -62,11 +62,11 @@ const pages: ScrollPage[] = [
           </div>
           <div>
             <p className="font-medium text-white">
-              Electrical Construction Inspector / Owner's Representative ·
+              Electrical Construction Inspector / Owner's Representative |
               Tavanir
             </p>
             <p className="text-sm text-white/64">
-              Apr 2018 - Sep 2022 · Bushehr Province, Iran · On-site
+              Apr 2018 - Sep 2022 | Bushehr Province, Iran | On-site
             </p>
             <p className="mt-2">
               Led site inspections, contractor coordination, HSE reporting,
@@ -94,13 +94,13 @@ const pages: ScrollPage[] = [
               Memorial University, Newfoundland and Labrador
             </p>
             <p className="text-sm text-white/64">
-              Master of Science, Energy Systems Engineering · 2022 - 2024
+              Master of Science, Energy Systems Engineering | 2022 - 2024
             </p>
           </div>
           <div>
             <p className="font-medium text-white">Persian Gulf University</p>
             <p className="text-sm text-white/64">
-              Master of Engineering, Electrical Engineering · 2013 - 2016
+              Master of Engineering, Electrical Engineering | 2013 - 2016
             </p>
           </div>
           <div>
@@ -160,20 +160,20 @@ const pages: ScrollPage[] = [
               Designing Sustainable Energy Systems: The Case of Bell Island's
               Hybrid Renewable Power
             </p>
-            <p className="text-sm text-white/64">IEEE · Nov 14, 2024</p>
+            <p className="text-sm text-white/64">IEEE | Nov 14, 2024</p>
           </div>
           <div>
             <p className="font-medium text-white">
               Fault Prediction on Newfoundland's Wind Turbines and Power Grids
             </p>
-            <p className="text-sm text-white/64">IEEE · Nov 14, 2023</p>
+            <p className="text-sm text-white/64">IEEE | Nov 14, 2023</p>
           </div>
           <div>
             <p className="font-medium text-white">
               Advancements in Brushless DC Motor Control Systems for
               Sustainable Electric Vehicle Manufacturing
             </p>
-            <p className="text-sm text-white/64">IEEE · Nov 14, 2023</p>
+            <p className="text-sm text-white/64">IEEE | Nov 14, 2023</p>
           </div>
           <div>
             <p className="font-medium text-white">
@@ -235,33 +235,36 @@ function ContentBlock({
   content: PanelContent;
 }) {
   const headingClass = content.featured
-    ? "text-4xl font-semibold leading-[0.96] tracking-tight text-white md:text-6xl lg:text-7xl"
-    : "text-3xl font-semibold leading-tight tracking-tight text-white md:text-5xl";
+    ? "text-3xl font-semibold leading-[1.02] tracking-tight text-white sm:text-4xl md:text-6xl lg:text-7xl"
+    : "text-2xl font-semibold leading-tight tracking-tight text-white sm:text-3xl md:text-5xl";
 
   return (
     <GlassEffect
-      className={`rounded-[2rem] p-1 text-white ${
+      className={`w-full rounded-[1.5rem] p-1 text-white sm:rounded-[2rem] ${
         content.featured ? "max-w-3xl" : "max-w-xl"
       }`}
     >
-      <div className="rounded-[1.75rem] border border-white/15 bg-black/20 px-6 py-7 text-left backdrop-blur-md md:px-8 md:py-9">
-        <div className="mb-8">
-          <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#d8b46a]">
+      <div
+        data-scroll-card
+        className="max-h-[calc(100dvh-8.5rem)] overflow-y-auto rounded-[1.25rem] border border-white/15 bg-black/20 px-5 py-6 text-left backdrop-blur-md sm:rounded-[1.75rem] md:max-h-none md:overflow-visible md:px-8 md:py-9"
+      >
+        <div className="mb-6 md:mb-8">
+          <p className="text-[0.68rem] font-medium uppercase tracking-[0.22em] text-[#d8b46a] md:text-xs md:tracking-[0.28em]">
             {content.kicker}
           </p>
         </div>
 
         <h2 className={headingClass}>{content.heading}</h2>
 
-        <div className="mt-6 text-base font-light leading-8 text-white/82 md:text-lg">
+        <div className="mt-5 text-sm font-light leading-7 text-white/82 sm:text-base md:mt-6 md:text-lg md:leading-8">
           {content.description}
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-2 md:mt-8">
           {content.meta.map((item, index) => (
             <span
               key={typeof item === "string" ? item : index}
-              className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-normal text-white/86"
+              className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-normal text-white/86 md:px-4 md:py-2 md:text-sm"
             >
               {item}
             </span>
@@ -277,6 +280,7 @@ export default function ScrollAdventure() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const scrolling = useRef(false);
   const currentPageRef = useRef(currentPage);
+  const touchStartY = useRef<number | null>(null);
   const numOfPages = pages.length;
   const animTime = 1000;
 
@@ -339,12 +343,45 @@ export default function ScrollAdventure() {
     };
   }, []);
 
+  const handleTouchStart = (event: React.TouchEvent<HTMLElement>) => {
+    touchStartY.current = event.touches[0]?.clientY ?? null;
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLElement>) => {
+    if (touchStartY.current === null) return;
+
+    const endY = event.changedTouches[0]?.clientY;
+    if (endY === undefined) return;
+
+    const delta = touchStartY.current - endY;
+    touchStartY.current = null;
+
+    if (Math.abs(delta) < 48) return;
+
+    const target = event.target instanceof Element ? event.target : null;
+    const scrollCard = target?.closest("[data-scroll-card]");
+
+    if (scrollCard instanceof HTMLElement) {
+      const canScrollDown =
+        scrollCard.scrollTop + scrollCard.clientHeight < scrollCard.scrollHeight - 2;
+      const canScrollUp = scrollCard.scrollTop > 2;
+
+      if ((delta > 0 && canScrollDown) || (delta < 0 && canScrollUp)) {
+        return;
+      }
+    }
+
+    beginNavigation(delta > 0 ? "down" : "up");
+  };
+
   return (
     <section
       id="site"
       ref={sectionRef}
       tabIndex={0}
-      className="relative h-screen overflow-hidden bg-[#05080d] outline-none"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="relative h-[100dvh] overflow-hidden bg-[#05080d] outline-none md:h-screen"
     >
       <GlassFilter />
 
@@ -383,7 +420,7 @@ export default function ScrollAdventure() {
                 }}
               >
                 <div className="absolute inset-0 bg-black/45" />
-                <div className="relative flex h-full flex-col items-center justify-center p-6 text-white md:p-10">
+                <div className="relative flex h-full flex-col items-center justify-center px-4 py-16 text-white sm:p-6 md:p-10">
                   {page.leftContent && (
                     <ContentBlock content={page.leftContent} />
                   )}
@@ -406,7 +443,7 @@ export default function ScrollAdventure() {
                 }}
               >
                 <div className="absolute inset-0 bg-black/45" />
-                <div className="relative flex h-full flex-col items-center justify-center p-6 text-white md:p-10">
+                <div className="relative flex h-full flex-col items-center justify-center px-4 py-16 text-white sm:p-6 md:p-10">
                   {page.rightContent && (
                     <ContentBlock content={page.rightContent} />
                   )}
@@ -417,7 +454,14 @@ export default function ScrollAdventure() {
         );
       })}
 
-      <div className="pointer-events-none absolute bottom-8 left-1/2 z-40 flex max-w-[calc(100%-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-white/72 backdrop-blur-md">
+      <div className="pointer-events-none absolute bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[#d8b46a] backdrop-blur-md sm:hidden">
+        {pages[currentPage - 1]?.label}
+        <span className="text-white/40">
+          {currentPage}/{pages.length}
+        </span>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-8 left-1/2 z-40 hidden max-w-[calc(100%-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-white/72 backdrop-blur-md sm:flex">
         {pages.map((page, index) => (
           <span
             key={page.label}
